@@ -12,11 +12,13 @@ var ArtileRouterGroup = Group{
 			Path: "/list",
 			Method: http.MethodGet,
 			Handler: controller.Article.List,
+			IsAuth: true,
 		},
 		{
 			Path: "/list/:id",
 			Method: http.MethodGet,
 			Handler: controller.Article.GetInfo,
+			IsAuth: false,
 		},
 	},
 }

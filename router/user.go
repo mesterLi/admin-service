@@ -12,16 +12,19 @@ var UserRouterGroup = Group{
 			Path: "/login",
 			Method: http.MethodPost,
 			Handler: controller.Login,
+			IsAuth: false,
 		},
 		{
 			Path: "/info",
 			Method: http.MethodGet,
 			Handler: controller.Info,
+			IsAuth: true,
 		},
 		{
 			Path: "/create",
 			Method: http.MethodPost,
 			Handler: controller.Create,
+			IsAuth: true,
 		},
 	},
 }

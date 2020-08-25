@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"admin-service/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -22,6 +23,8 @@ func isLogin(url string) bool {
 }
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		isAuth, isExist := c.Get("isAuth")
+		fmt.Println("isAuth", isExist, isAuth)
 		if isLogin(c.Request.RequestURI) == false {
 			c.Next()
 			return

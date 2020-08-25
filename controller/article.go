@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"admin-service/global"
 	"admin-service/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,10 @@ import (
 )
 type idParam struct {
 	Id string `uri:"id" binding:"required,uuid"`
+}
+
+type listParams struct {
+	Page, Limit, Title, SubTitle string
 }
 const (
 	ARTICLE_STATUS_ALL = iota
@@ -24,14 +29,15 @@ var Article = articleControl{
 	GetInfo: getInfo,
 }
 func list(c *gin.Context) {
-	fmt.Println(c.FullPath())
-	page := c.Param("page")
-	limit := c.Param("limit")
-	tag := c.Param("tag")
-	status := c.Param("status")
-	fmt.Println(page,limit,tag,status)
-	fmt.Println(ARTICLE_STATUS_ALL, ARTICLE_STATUS_OFF, ARTICLE_STATUS_ON, ARTICLE_STATUS_REMOVE)
+	var params listParams
+	params.Page = c.DefaultQuery("page", "1")
+	params.Limit = c.DefaultQuery("limit", "10")
+	params.Title = c.DefaultQuery("title", "")
+	params.SubTitle = c.DefaultQuery("subTitle", "")
+	fmt.Println(params)
 	list := []model.ArticleInfo{}
+	global.Db.Where(&model.ArticleInfo{Title: params.Title, SubTitle: params.SubTitle}).Limit(params.Limit).Find(&list)
+	fmt.Println(list)
 	c.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
 		"data": map[string] interface{}{

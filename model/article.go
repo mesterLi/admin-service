@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Tag struct {
 	Id string
@@ -8,14 +10,18 @@ type Tag struct {
 }
 
 type ArticleInfo struct {
-	Title string `json:"title" db:"title"`
-	SubTitle string `json:"subTitle" db:"subTitle"`
-	Id string `json:"id" db:"id"`
-	Content string `json:"content" db:"content"`
-	Tags []Tag `json:"tags" db:"tags"`
-	ReadNum int `json:"readNum" db:"readNum"`
-	CommentNum int `json:"commentNum" db:"commentNum"`
-	StarNum int `json:"starNum" db:"starNum"`
-	CreateTime time.Time `json:"createTime" db:"createTime"`
-	UpdateTime time.Time`json:"updateTime" db:"updateTime"`
+	Title string `json:"title"`
+	SubTitle string `json:"subTitle"`
+	Id string `json:"id" gorm:"PRIMARY_KEY;AUTO_INCREMENT"`
+	Content string `json:"content"`
+	Tags []Tag `json:"tags"`
+	ReadNum int `json:"readNum"`
+	CommentNum int `json:"commentNum"`
+	StarNum int `json:"starNum"`
+	CreateTime time.Time `json:"createTime"`
+	UpdateTime time.Time`json:"updateTime"`
+}
+
+func (ArticleInfo) TableName() string {
+	return "articles"
 }
