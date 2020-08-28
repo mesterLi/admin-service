@@ -9,13 +9,7 @@ var ArtileRouterGroup = Group{
 	Prefix: "/admin/article",
 	RouterChild: []Router{
 		{
-			Path: "/list",
-			Method: http.MethodGet,
-			Handler: controller.Article.List,
-			IsAuth: true,
-		},
-		{
-			Path: "/list/:id",
+			Path: "/:id",
 			Method: http.MethodGet,
 			Handler: controller.Article.GetInfo,
 			IsAuth: false,

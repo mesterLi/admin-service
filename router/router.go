@@ -2,7 +2,6 @@ package router
 
 import (
 	"admin-service/global"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,14 +25,14 @@ var routes = []Group{
 func bindRoute(group Group) {
 	g := global.Server.Group(group.Prefix)
 	for _, router := range group.RouterChild {
-		go func(r Router) {
-			g.Handle(r.Method, r.Path, func(context *gin.Context) {
-				fmt.Println(".........111111.......")
-				context.Set("isAuth", r.IsAuth)
-				r.Handler(context)
-			})
-		}(router)
-		//g.Handle(router.Method, router.Path, router.Handler)
+		//go func(r Router) {
+		//	g.Handle(r.Method, r.Path, func(context *gin.Context) {
+		//		fmt.Println(".........111111.......")
+		//		context.Set("isAuth", r.IsAuth)
+		//		r.Handler(context)
+		//	})
+		//}(router)
+		g.Handle(router.Method, router.Path, router.Handler)
 	}
 }
 func Init() {

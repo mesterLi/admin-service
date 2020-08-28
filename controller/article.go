@@ -3,17 +3,11 @@ package controller
 import (
 	"admin-service/global"
 	"admin-service/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
-type idParam struct {
-	Id string `uri:"id" binding:"required,uuid"`
-}
 
-type listParams struct {
-	Page, Limit, Title, SubTitle string
-}
 const (
 	ARTICLE_STATUS_ALL = iota
 	ARTICLE_STATUS_ON
@@ -25,41 +19,68 @@ type articleControl struct {
 }
 
 var Article = articleControl{
-	List: list,
+	List: article_list,
 	GetInfo: getInfo,
 }
-func list(c *gin.Context) {
-	var params listParams
-	params.Page = c.DefaultQuery("page", "1")
-	params.Limit = c.DefaultQuery("limit", "10")
-	params.Title = c.DefaultQuery("title", "")
-	params.SubTitle = c.DefaultQuery("subTitle", "")
-	fmt.Println(params)
+func article_list(c *gin.Context) {
+	var total int
 	list := []model.ArticleInfo{}
-	global.Db.Where(&model.ArticleInfo{Title: params.Title, SubTitle: params.SubTitle}).Limit(params.Limit).Find(&list)
-	fmt.Println(list)
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "10")
+	title := c.DefaultQuery("title", "")
+	subTitle := c.DefaultQuery("subTitle", "")
+	status := c.DefaultQuery("status", "0")
+	statusInt, _ := strconv.Atoi(status)
+	pageInt, _ := strconv.Atoi(page)
+	limitInt, _ := strconv.Atoi(limit)
+	var Db = global.Db.Table("articles")
+	if statusInt != ARTICLE_STATUS_ALL {
+		Db = Db.Where("status = ?", statusInt)
+	}
+	if title != "" {
+		Db = Db.Where("title = ?", title)
+	}
+	if subTitle != "" {
+		Db = Db.Where("subTitle = ?", title)
+	}
+	Db.Limit(limitInt).Offset((pageInt - 1) * limitInt).Find(&list).Count(&total)
 	c.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
 		"data": map[string] interface{}{
 			"list": list,
-			"total": 0,
-			"limit": 10,
+			"total": total,
 		},
 		"message": "获取列表成功",
 	})
 }
 
 func getInfo(c *gin.Context) {
-	var param idParam
-	if err := c.ShouldBindUri(&param); err != nil {
-		c.JSON(400, gin.H{
-			"msg": err.Error(),
+	var info model.ArticleInfo
+	id := c.Param("id")
+	if id == "list" {
+		article_list(c)
+		return
+	}
+	if id == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"status": http.StatusOK,
+			"message": "没有该文章",
+			"data": model.ArticleInfo{},
+		})
+		return
+	}
+	Db := global.Db.Table("articles").Where("id = ?", id).First(&info)
+	if info.Id == 0 || Db.Error != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"status": http.StatusBadRequest,
+			"message": "没有该文章",
+			"data": model.ArticleInfo{},
 		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
-		"data": model.ArticleInfo{},
-		"id": c.Param("id"),
+		"data": info,
+		"message": "success",
 	})
 }
